@@ -24,10 +24,21 @@ class PurchaseController extends Controller
                         $join->on('p.supplier_id', '=', 'c.id');
                     })
                     ->orderBy('p.id', 'DESC')
-                    ->get(['p.id', 'p.date', 'c.name as supplier']);
+                    ->get(['p.id', 'p.date','p.status', 'c.name as supplier']);
 
                 return DataTables::of($data)
                     ->addIndexColumn()
+                    ->addColumn('date', function ($data) {
+                        return Carbon::parse($data->date)->format('d-M-Y');
+                    })
+                    ->addColumn('status', function ($data) {
+                        if ($data->status == 1) {
+                            return '<span class="label pull-left bg-green">COMPLETE</span>';
+                        } else {
+                            return '<span class="label pull-left bg-yellow" > PENDING</span >';
+                        }
+
+                    })
                     ->addColumn('amount', function ($data) {
                         $purchase = DB::table('purchases')
                             ->where('id', $data->id)->first();
@@ -42,7 +53,7 @@ class PurchaseController extends Controller
                             ->sum('amount');
 
                         $purchase_amount_det = 0;
-                        foreach ($purchase_details as $detail){
+                        foreach ($purchase_details as $detail) {
                             $amount = $detail->rate * $detail->quantity;
                             $purchase_amount_det += $amount;
                         }
@@ -71,7 +82,7 @@ class PurchaseController extends Controller
                                         </a>
                                     </li>
                                     <li>
-                                        <a style="cursor: pointerA" onclick="payment('.$data->id.')">
+                                        <a style="cursor: pointer" onclick="payment(' . $data->id . ')">
                                             <i class="fa fa-dollar"></i> 
                                             Payment
                                         </a>
@@ -80,7 +91,7 @@ class PurchaseController extends Controller
                                   </ul>
                                 </div>';
                     })
-                    ->rawColumns(['amount', 'action'])
+                    ->rawColumns(['date','status','amount', 'action'])
                     ->make(true);
             }
             return view('dashboard.pages.purchase.index');
@@ -146,6 +157,16 @@ class PurchaseController extends Controller
                     'rate' => $request->price[$i],
                     'quantity' => $request->quantity[$i],
                 ]);
+
+                $product = DB::table('products')->where('id', $request->product[$i])
+                    ->first('stock');
+
+                $quantity = $product->stock + $request->quantity[$i];
+
+                DB::table('products')->where('id', $request->product[$i])
+                    ->update([
+                        'stock' => $quantity
+                    ]);
             }
 
             if ($request->payment_status) {
@@ -190,7 +211,7 @@ class PurchaseController extends Controller
                 ->leftJoin('people as p', function ($join) {
                     $join->on('p.id', '=', 'd.supplier_id');
                 })
-                ->first(['d.*','p.name as supplier_name']);
+                ->first(['d.*', 'p.name as supplier_name']);
 
             $purchaseDetails = DB::table('purchase_details as d')
                 ->where('d.purchase_id', $id)
@@ -292,7 +313,8 @@ class PurchaseController extends Controller
         }
     }
 
-    public function purchase_payment_render(Request $request){
+    public function purchase_payment_render(Request $request)
+    {
         $id = $request->id;
 
         $purchase = DB::table('purchases')
@@ -308,7 +330,7 @@ class PurchaseController extends Controller
             ->sum('amount');
 
         $purchase_amount_det = 0;
-        foreach ($purchase_details as $detail){
+        foreach ($purchase_details as $detail) {
             $amount = $detail->rate * $detail->quantity;
             $purchase_amount_det += $amount;
         }
@@ -318,26 +340,27 @@ class PurchaseController extends Controller
 
         $due_amount = $purchase_amount - $paid_amount;
 
-        if($due_amount <= 0){
+        if ($due_amount <= 0) {
             return 1;
         }
 
         $html = view('dashboard.pages.purchase.payment-render',
-            compact('id','paid_amount','purchase_amount','due_amount'
+            compact('id', 'paid_amount', 'purchase_amount', 'due_amount'
             ))->render();
         return response()->json([
             $html,
         ]);
     }
 
-    public function purchase_payment(Request $request){
+    public function purchase_payment(Request $request)
+    {
 
         DB::beginTransaction();
         try {
             DB::table('purchases')
                 ->where('id', $request->purchase_id)
                 ->update([
-                    'payment_status' =>  $request->payment_status
+                    'payment_status' => $request->payment_status
                 ]);
 
             DB::table('transactions')->insert([

@@ -21,11 +21,12 @@
                 <thead class=""
                        style="color: white;background-image: radial-gradient( circle farthest-corner at 22.4% 21.7%, rgba(4,189,228,1) 0%, rgba(2,83,185,1) 100.2% );">
                 <tr class="" style="text-align:center; ">
-                    <th style="width: 10%">SL</th>
-                    <th style="width: 20%">Date</th>
-                    <th style="width: 40%">Customer</th>
+                    <th style="width: 8%">SL</th>
+                    <th style="width: 12%">Date</th>
+                    <th style="width: 35%">Customer</th>
+                    <th style="width: 15%">Status</th>
                     <th style="width: 20%">Amount</th>
-                    <th style="width: 10%">Action</th>
+                    <th style="width: 15%">Action</th>
                 </tr>
                 </thead>
             </table>
@@ -69,7 +70,8 @@
             columns: [
                 {data: "DT_RowIndex", name: "DT_RowIndex", orderable: false,},
                 {data: 'date', name: 'date', orderable: true,},
-                {data: 'supplier', name: 'supplier', orderable: true,},
+                {data: 'customer', name: 'customer', orderable: true,},
+                {data: 'status', name: 'status', orderable: true,},
                 {data: 'amount', name: 'amount', orderable: true,},
                 // {data: 'status', name: 'vat_or_tax_type', orderable: true},
                 {data: 'action', searchable: false, orderable: false}

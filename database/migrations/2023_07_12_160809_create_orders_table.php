@@ -15,14 +15,17 @@ return new class extends Migration
             $table->id();
             $table->integer('customer_id');
             $table->integer('outlet_id');
+            $table->integer('unit_id');
             $table->string('date');
             $table->string('document')->nullable();
             $table->integer('status')
                 ->comment('1-complete,2-pending,3-cancel');
-            $table->integer('payment_status')->comment('1-paid,2-partial paid,3-unpaid');
+            $table->integer('payment_status')
+                ->comment('1-paid,2-partial paid,3-unpaid');
             $table->double('vat')->default(0);
             $table->double('discount')->default(0);
             $table->double('shipping_charge')->default(0);
+            $table->double('grand_total')->default(0);
             $table->text('description')->nullable();
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();

@@ -267,7 +267,7 @@
                 $('#product-add-area').prepend(
                     `<tr id="tr-${x}">
                     <td>
-                        <input type="hidden" name="product_count[]" value="${x}">
+
                         <input type="hidden" name="product[]" id="product-id-${x}" value="${product_id}">
                         ${product_name}
                     </td>
@@ -314,10 +314,10 @@
                                 <tr>
                                     <th colspan="2">Total</th>
                                     <th>
-                                        <input type="number" id="tr-det-tot-qty-${x}" class="form-control qty_det" readonly>
+                                        <input type="number" name="product_quantity[]" id="tr-det-tot-qty-${x}" class="form-control qty_det" readonly>
                                     </th>
                                     <th>
-                                        <input type="number" id="tr-det-tot-sqf-${x}" class="form-control" readonly>
+                                        <input type="number"  id="tr-det-tot-sqf-${x}" class="form-control" readonly>
                                     </th>
 
                                 </tr>

@@ -24,34 +24,24 @@ class OrderController extends Controller
                         $join->on('o.customer_id', '=', 'p.id');
                     })
                     ->orderBy('o.id', 'DESC')
-                    ->get(['o.id', 'o.date', 'p.name as customer']);
+                    ->get(['o.*', 'p.name as customer']);
 
                 return DataTables::of($data)
                     ->addIndexColumn()
-                    ->addColumn('amount', function ($data) {
-//                        $purchase = DB::table('orders')
-//                            ->where('id', $data->id)->first();
-//
-//                        $purchase_details = DB::table('order_details')
-//                            ->where('order_id', $data->id)
-//                            ->get();
-//
-//                        $paid_amount = DB::table('transactions')
-//                            ->where('type', 1)
-//                            ->where('relation_id', $data->id)
-//                            ->sum('amount');
-//
-//                        $purchase_amount_det = 0;
-//                        foreach ($purchase_details as $detail){
-//                            $amount = $detail->rate * $detail->quantity;
-//                            $purchase_amount_det += $amount;
-//                        }
-//
-//                        $purchase_amount = ($purchase_amount_det + $purchase->shipping_charge) - $purchase->discount;
-//
-//
-//                        return number_format(($purchase_amount), 2, '.', ',');
+                    ->addColumn('status', function ($data) {
+                        if ($data->status == 1) {
+                            return '<span class="label pull-left bg-green">COMPLETE</span>';
+                        } else {
+                            return '<span class="label pull-left bg-yellow" > PENDING</span >';
+                        }
+
                     })
+                    ->addColumn('date', function ($data) {
+                        return Carbon::parse($data->date)->format('d-M-Y');
+                    })
+                    ->addColumn('amount', function ($data) {
+                        return number_format(($data->grand_total), 2, '.', ',');
+                     })
                     ->addColumn('action', function ($data) {
                         return '<div class="btn-group ">
                                   <button type="button" class="btn btn-success">Action</button>
@@ -71,7 +61,7 @@ class OrderController extends Controller
                                         </a>
                                     </li>
                                     <li>
-                                        <a style="cursor: pointerA" onclick="payment('.$data->id.')">
+                                        <a style="cursor: pointer" onclick="payment('.$data->id.')">
                                             <i class="fa fa-dollar"></i> 
                                             Payment
                                         </a>
@@ -80,7 +70,7 @@ class OrderController extends Controller
                                   </ul>
                                 </div>';
                     })
-                    ->rawColumns(['amount', 'action'])
+                    ->rawColumns(['date','status','amount', 'action'])
                     ->make(true);
             }
             return view('dashboard.pages.order.index');
@@ -121,16 +111,17 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+//        dd($request->input());
 
-//        $request->validate([
-//            'customer_id' => 'required',
-//            'outlet_id' => 'required',
-//            'status' => 'required',
-//            'date' => 'required',
-//        ], []);
+        $request->validate([
+            'customer_id' => 'required',
+            'outlet_id' => 'required',
+            'status' => 'required',
+            'date' => 'required',
+        ], []);
 
-//        DB::beginTransaction();
-//        try {
+        DB::beginTransaction();
+        try {
             $id = DB::table('orders')->insertGetId([
                 'date' => $request->date,
                 'customer_id' => $request->customer_id,
@@ -139,6 +130,7 @@ class OrderController extends Controller
                 'status' => $request->status,
                 'discount' => $request->discount ?? 0,
                 'shipping_charge' => $request->shipping_charge ?? 0,
+                'grand_total' => $request->grand_total,
                 'payment_status' => $request->payment_status,
                 'description' => $request->description,
                 'created_by' => Auth::id(),
@@ -155,6 +147,17 @@ class OrderController extends Controller
 
                 $det_count = count($request->$length);
 
+                /*Stock update*/
+                $product = DB::table('products')->where('id', $request->product[$i])
+                    ->first('stock');
+
+                $quantity = $product->stock - $request->product_quantity[$i];
+
+                DB::table('products')->where('id', $request->product[$i])
+                    ->update([
+                        'stock' => $quantity
+                    ]);
+                /*Stock update*/
 
                 for ($j=0; $j < $det_count; $j++){
                     $quantity = 'product_'.$request->product[$i].'_qty';
@@ -165,6 +168,7 @@ class OrderController extends Controller
                     DB::table('order_details')->insert([
                         'order_id' => $id,
                         'product_id' => $request->product[$i],
+                        'thickness' => $request->thickness[$i],
                         'rate' => $request->price[$i],
                         'length' => $request->$length[$j],
                         'width' => $request->$width[$j],
@@ -198,12 +202,12 @@ class OrderController extends Controller
 
             DB::commit();
 
-            return redirect()->route('purchase.index')
+            return redirect()->route('order.index')
                 ->with('success', 'Created Successfully');
-//        } catch (\Exception $exception) {
-//            DB::rollback();
-//            return redirect()->back()->with('error', $exception->getMessage());
-//        }
+        } catch (\Exception $exception) {
+            DB::rollback();
+            return redirect()->back()->with('error', $exception->getMessage());
+        }
     }
 
     /**
@@ -236,5 +240,36 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         //
+    }
+
+    public function order_payment_render(Request $request){
+
+        $id = $request->id;
+
+        $order = DB::table('orders')
+            ->where('id', $id)->first();
+
+        $order_details = DB::table('order_details')
+            ->where('order_id', $request->id)
+            ->distinct('product_id')
+            ->get(['product_id']);
+
+        $paid_amount = DB::table('transactions')
+            ->where('type', 2)
+            ->where('relation_id', $request->id)
+            ->sum('amount');
+
+        $due_amount = $order->grand_total - $paid_amount;
+
+        if($due_amount <= 0){
+            return 1;
+        }
+
+        $html = view('dashboard.pages.order.payment-render',
+            compact('id','paid_amount','order','due_amount','order_details'
+            ))->render();
+        return response()->json([
+            $html,
+        ]);
     }
 }

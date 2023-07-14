@@ -15,13 +15,14 @@ return new class extends Migration
             $table->id();
             $table->integer('order_id');
             $table->integer('product_id');
-            $table->double('height');
+            $table->string('thickness')->nullable();
+            $table->double('length');
             $table->double('width');
-            $table->integer('unit_id');
-            $table->double('division_amount');
+//            $table->integer('unit_id')->nullable();
+//            $table->double('division_amount')->nullable();
             $table->double('rate');
             $table->double('quantity');
-            $table->double('final_amount');
+            $table->double('sqf');
         });
     }
 
