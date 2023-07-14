@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->string('date');
+            $table->integer('account_id');
             $table->integer('type')
-                ->comment('1-purchase, 2-order, 3-expense');
+                ->comment('1-purchase, 2-order, 3-expense, 4-deposit, 5-withdraw');
             $table->integer('relation_id');
             $table->integer('tran_type')->comment('1-debit,2-credit');
             $table->double('amount');

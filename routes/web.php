@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Dashboard\AccountController;
 use App\Http\Controllers\Dashboard\CustomerController;
 use App\Http\Controllers\Dashboard\DesignationController;
 use App\Http\Controllers\Dashboard\EmployeeController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Dashboard\ProductController;
 use App\Http\Controllers\Dashboard\PurchaseController;
 use App\Http\Controllers\Dashboard\SaleController;
 use App\Http\Controllers\Dashboard\SupplierController;
+use App\Http\Controllers\Dashboard\TransactionController;
 use App\Http\Controllers\Dashboard\UnitController;
 use App\Http\Controllers\Dashboard\WarehouseController;
 use App\Http\Controllers\HomeController;
@@ -56,6 +58,8 @@ Route::group(['middleware' => 'auth'], function(){
     Route::resource('warehouse', WarehouseController::class)->except(['delete']);
     Route::resource('expense', ExpenseController::class);
     Route::resource('expense-categories', ExpenseCategoryController::class);
+    Route::resource('accounts', AccountController::class);
+    Route::resource('transactions', TransactionController::class);
 
     Route::group(['prefix' => 'products-categories','as'=>'products-categories.'], function(){
         Route::get('delete/{id}', [ProductCategoryController::class,'destroy'])->name('delete');

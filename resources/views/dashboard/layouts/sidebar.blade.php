@@ -78,7 +78,11 @@
             </ul>
         </li>
 
-        <li class="treeview">
+        <li class="treeview
+        {{ Route::is('accounts.*') ? 'active' : '' }} ||
+            {{ Route::is('transactions.*') ? 'active' : '' }}
+
+        ">
             <a href="#">
                 <i class="fa fa-money"></i>
                 <span>Accounts</span>
@@ -87,8 +91,18 @@
             </span>
             </a>
             <ul class="treeview-menu">
-                <li><a href="pages/charts/morris.html"><i class="fa fa-circle-o"></i> Accounts</a></li>
-                <li><a href="pages/charts/morris.html"><i class="fa fa-circle-o"></i> Transactions</a></li>
+                <li class="{{ Route::is('accounts.*') ? 'active' : '' }}">
+                    <a href="{{route('accounts.index')}}">
+                        <i class="fa fa-circle-o"></i>
+                        Accounts
+                    </a>
+                </li>
+                <li class="{{ Route::is('accounts.*') ? 'active' : '' }}">
+                    <a href="{{route('transactions')}}">
+                        <i class="fa fa-circle-o"></i>
+                        Transactions
+                    </a>
+                </li>
             </ul>
         </li>
 

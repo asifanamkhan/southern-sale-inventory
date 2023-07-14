@@ -13,6 +13,16 @@ return new class extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
+            $table->integer('type')->comment('1-petty cash, 2-bank');
+            $table->string('bank')->nullable();
+            $table->string('branch')->nullable();
+            $table->string('account_no')->nullable();
+            $table->string('name')->nullable();
+            $table->double('opening_balance')->nullable();
+            $table->integer('status')->default(1);
+            $table->text('description')->nullable();
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->timestamps();
         });
     }

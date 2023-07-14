@@ -192,7 +192,7 @@ class OrderController extends Controller
                     'status' => 1,
                     'relation_id' => $id,
                     'tran_type' => 1,
-                    'narration' => 'Purchase Payment',
+                    'narration' => 'Order Payment',
                     'amount' => $amount,
                     'created_by' => Auth::id(),
                     'created_at' => Carbon::now(),
