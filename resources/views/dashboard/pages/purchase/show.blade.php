@@ -119,37 +119,50 @@
                     <p style="font-weight: bold; font-size: 20px;">Payment Details</p>
                     <table style="width: 100%; margin-top: 5px" class="table table-responsive table-striped data-table"
                            id="table">
-                        <thead class="" style="color: white;background-image: radial-gradient( circle farthest-corner at 22.4% 21.7%, rgba(4,189,228,1) 0%, rgba(2,83,185,1) 100.2% );">
+                        <thead class=""
+                               style="color: white;background-image: radial-gradient( circle farthest-corner at 22.4% 21.7%, rgba(4,189,228,1) 0%, rgba(2,83,185,1) 100.2% );">
                         <tr class="" style="text-align:center; ">
-                            <th style="width: 20%">SL</th>
-                            <th style="width: 40%">Date</th>
-                            <th style="width: 40%; text-align: right">Amount</th>
+                            <th style="width: 5%">SL</th>
+                            <th style="width: 20%">Date</th>
+                            <th style="width: 50%">Payment Via</th>
+                            <th style="width: 25%; text-align: right">Amount</th>
                         </tr>
                         </thead>
 
                         @if($purchase->payment_status != 3)
                             @php
-                                $transactions = \Illuminate\Support\Facades\DB::table('transactions')
-                                                ->where('type', 1)
-                                                ->where('relation_id', $purchase->id)
-                                                ->get();
-                            @endphp
+                                $transactions = \Illuminate\Support\Facades\DB::table('transactions as t')
+                                                ->where('t.type', 1)
+                                                ->where('t.relation_id', $purchase->id)
+                                                ->leftJoin('accounts as a', function ($join) {
+                                                    $join->on('t.account_id', '=', 'a.id');
+                                                })
+                                                ->get(['t.*','a.type as acc_type','a.name','a.bank','a.branch','a.account_no']);
+//                                dd($transactions)
+                                @endphp
                             <tbody>
                             @foreach($transactions as $transaction)
                                 <tr>
                                     <td>{{$loop->iteration}}</td>
                                     <td>{{\Illuminate\Support\Carbon::parse($transaction->date)->format('d-M-Y')}}</td>
+                                    <td>
+                                        @if($transaction->acc_type == 1)
+                                            {{$transaction->name}} (Petty Cash)
+                                        @else
+                                            {{$transaction->account_no}} => {{$transaction->branch}} => {{$transaction->bank}}
+                                        @endif
+                                    </td>
                                     <td style="text-align: right">
                                         @php
-                                            $total_tran_amount += $transaction->amount;
+                                            $total_tran_amount += $transaction->credit_amount;
                                         @endphp
-                                        {{number_format(($transaction->amount), 2, '.', ',')}}
+                                        {{number_format(($transaction->credit_amount), 2, '.', ',')}}
                                     </td>
                                 </tr>
                             @endforeach
                             <tfoot>
                             <tr>
-                                <th colspan="2" style="text-align: center">Total</th>
+                                <th colspan="3" style="text-align: center">Total</th>
                                 <th style="text-align: right">{{number_format(($total_tran_amount), 2, '.', ',')}}</th>
                             </tr>
                             </tfoot>
@@ -158,7 +171,8 @@
                     </table>
                 </div>
                 <div class="col-md-12" style="margin-top: 10px">
-                    <p style="text-align: center; font-size: 20px; font-weight: bolder; color: darkred">DUE AMOUNT: {{number_format(($grant_total - $total_tran_amount), 2, '.', ',')}}</p>
+                    <p style="text-align: center; font-size: 20px; font-weight: bolder; color: darkred">DUE
+                        AMOUNT: {{number_format(($grant_total - $total_tran_amount), 2, '.', ',')}}</p>
                 </div>
             </div>
         </div>

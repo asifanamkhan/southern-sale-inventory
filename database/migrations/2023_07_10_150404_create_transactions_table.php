@@ -16,11 +16,11 @@ return new class extends Migration
             $table->string('date');
             $table->integer('account_id');
             $table->integer('type')
-                ->comment('1-purchase, 2-order, 3-expense, 4-deposit, 5-withdraw');
+                ->comment('1-purchase, 2-order, 3-expense, 4-deposit, 5-withdraw, 6-opening');
             $table->integer('relation_id');
-            $table->integer('tran_type')->comment('1-debit,2-credit');
-            $table->double('amount');
-
+            $table->double('debit_amount')->nullable();
+            $table->double('credit_amount')->nullable();
+            $table->double('difference');
             $table->integer('status')->default(1);
             $table->text('narration')->nullable();
             $table->integer('created_by')->nullable();

@@ -23,7 +23,6 @@ class PurchaseController extends Controller
                     ->leftJoin('people as c', function ($join) {
                         $join->on('p.supplier_id', '=', 'c.id');
                     })
-                    ->orderBy('p.id', 'DESC')
                     ->get(['p.id', 'p.date','p.status', 'c.name as supplier']);
 
                 return DataTables::of($data)
@@ -47,10 +46,6 @@ class PurchaseController extends Controller
                             ->where('purchase_id', $data->id)
                             ->get(['rate', 'quantity']);
 
-                        $paid_amount = DB::table('transactions')
-                            ->where('type', 1)
-                            ->where('relation_id', $data->id)
-                            ->sum('amount');
 
                         $purchase_amount_det = 0;
                         foreach ($purchase_details as $detail) {
@@ -115,9 +110,13 @@ class PurchaseController extends Controller
                 ->orderBy('id', 'DESC')
                 ->get();
 
+            $accounts = DB::table('accounts')
+                ->orderBy('type', 'ASC')
+                ->get();
+
 
             return view('dashboard.pages.purchase.create',
-                compact('suppliers', 'products'));
+                compact('suppliers', 'products','accounts'));
         } catch (\Exception $exception) {
             return redirect()->back()->with('error', $exception->getMessage());
         }
@@ -169,7 +168,7 @@ class PurchaseController extends Controller
                     ]);
             }
 
-            if ($request->payment_status) {
+            if ($request->payment_status != 3) {
                 if ($request->payment_status == 1) {
                     $amount = $request->grand_total;
                 }
@@ -181,9 +180,10 @@ class PurchaseController extends Controller
                     'type' => 1,
                     'status' => 1,
                     'relation_id' => $id,
-                    'tran_type' => 2,
+                    'account_id' => $request->account_id,
                     'narration' => 'Purchase Payment',
-                    'amount' => $amount,
+                    'credit_amount' => $amount,
+                    'difference' => 0 - $amount,
                     'created_by' => Auth::id(),
                     'created_at' => Carbon::now(),
                 ]);
@@ -320,6 +320,10 @@ class PurchaseController extends Controller
         $purchase = DB::table('purchases')
             ->where('id', $id)->first();
 
+        $accounts = DB::table('accounts')
+            ->orderBy('type', 'ASC')
+            ->get();
+
         $purchase_details = DB::table('purchase_details')
             ->where('purchase_id', $request->id)
             ->get(['rate', 'quantity']);
@@ -327,7 +331,7 @@ class PurchaseController extends Controller
         $paid_amount = DB::table('transactions')
             ->where('type', 1)
             ->where('relation_id', $request->id)
-            ->sum('amount');
+            ->sum('credit_amount');
 
         $purchase_amount_det = 0;
         foreach ($purchase_details as $detail) {
@@ -345,7 +349,7 @@ class PurchaseController extends Controller
         }
 
         $html = view('dashboard.pages.purchase.payment-render',
-            compact('id', 'paid_amount', 'purchase_amount', 'due_amount'
+            compact('id', 'paid_amount', 'accounts','purchase_amount', 'due_amount'
             ))->render();
         return response()->json([
             $html,
@@ -368,9 +372,10 @@ class PurchaseController extends Controller
                 'type' => 1,
                 'status' => 1,
                 'relation_id' => $request->purchase_id,
-                'tran_type' => 2,
+                'account_id' => $request->account_id,
                 'narration' => 'Purchase Payment',
-                'amount' => $request->payment_amount,
+                'credit_amount' => $request->payment_amount,
+                'difference' => 0 - $request->payment_amount,
                 'created_by' => Auth::id(),
                 'created_at' => Carbon::now(),
             ]);

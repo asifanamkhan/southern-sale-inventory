@@ -97,8 +97,8 @@
                         Accounts
                     </a>
                 </li>
-                <li class="{{ Route::is('accounts.*') ? 'active' : '' }}">
-                    <a href="{{route('transactions')}}">
+                <li class="{{ Route::is('transactions.*') ? 'active' : '' }}">
+                    <a href="{{route('transactions.index')}}">
                         <i class="fa fa-circle-o"></i>
                         Transactions
                     </a>

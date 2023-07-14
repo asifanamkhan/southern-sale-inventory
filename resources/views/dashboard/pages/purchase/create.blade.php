@@ -128,11 +128,13 @@
                             </div>
                             <div class="col-md-12">
                                 <label for="date" class="col-form-label text-md-end">Discount</label>
-                                <input id="discount" onkeyup="totalCalc()" type="number" class="form-control" value="" name="discount">
+                                <input id="discount" onkeyup="totalCalc()" type="number" class="form-control" value=""
+                                       name="discount">
                             </div>
                             <div class="col-md-12">
                                 <label for="date" class="col-form-label text-md-end">Shipping charge</label>
-                                <input style="" onkeyup="totalCalc()" id="shipping_charge" type="number" class="form-control" name="shipping_charge">
+                                <input style="" onkeyup="totalCalc()" id="shipping_charge" type="number"
+                                       class="form-control" name="shipping_charge">
                             </div>
 
                             <div class="col-md-12">
@@ -143,7 +145,8 @@
                             <div class="col-md-12">
                                 <label for="date" class="col-form-label text-md-end">Payment Status</label><span
                                         style="font-weight: bold; color: red"> *</span>
-                                <select onchange="totalCalc()" required name="payment_status" id="payment_status" class="form-control">
+                                <select onchange="totalCalc()" required name="payment_status" id="payment_status"
+                                        class="form-control">
                                     <option value="">Select</option>
                                     <option value="1">Paid</option>
                                     <option value="2">Partially paid</option>
@@ -151,11 +154,37 @@
                                 </select>
                             </div>
 
+                            <div class=" col-md-12" id="payment_acc">
+                                <label for="supplier" class="col-form-label text-md-end">Payment Account</label><span
+                                        style="font-weight: bold; color: red"> *</span>
+                                <select required name="account_id" id="account_id"
+                                        class="select2 form-control @error('account_id') is-invalid @enderror">
+                                    <option value="">Select account</option>
+                                    @foreach($accounts as $account)
+                                        <option value="{{$account->id}}">
+                                            @if($account->type == 1)
+                                                {{$account->name}} (Petty Cash)
+                                            @else
+                                                {{$account->account_no}} => {{$account->branch}} => {{$account->bank}}
+                                            @endif
+
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('account_id')
+                                <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                                @enderror
+                            </div>
+
                             <div id="payment_area">
                                 <div class="col-md-12">
-                                    <label for="payment_amount" class="col-form-label text-md-end">Payment Amount</label><span
+                                    <label for="payment_amount" class="col-form-label text-md-end">Payment
+                                        Amount</label><span
                                             style="font-weight: bold; color: red"> *</span>
-                                    <input onkeyup="totalCalc()" id="payment_amount" type="number" class="form-control" name="payment_amount">
+                                    <input onkeyup="totalCalc()" id="payment_amount" type="number" class="form-control"
+                                           name="payment_amount">
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -192,6 +221,7 @@
 @section('js')
     <script>
         $('#payment_area').hide();
+        $('#payment_acc').hide();
         $().ready(function () {
             $("#form").validate({
                 rules: {
@@ -284,14 +314,14 @@
             let discount = $('#discount').val();
             let payment_amount = $('#payment_amount').val();
 
-            if(isNaN(shipping) || shipping == ""){
+            if (isNaN(shipping) || shipping == "") {
                 shipping = 0;
             }
-            if(isNaN(discount) || discount == ""){
+            if (isNaN(discount) || discount == "") {
                 discount = 0;
             }
 
-            if(isNaN(payment_amount) || payment_amount == ""){
+            if (isNaN(payment_amount) || payment_amount == "") {
                 payment_amount = 0;
             }
 
@@ -299,21 +329,27 @@
 
             $('#grand_total').val(grand_total)
 
-            if($('#payment_status').val() == 1){
+            if ($('#payment_status').val() == 1) {
                 $('#due_amount').val(0)
-            }else{
+            } else {
                 $('#due_amount').val(grand_total - parseFloat(payment_amount))
             }
 
         }
 
-        $('#payment_status').on('change',function (){
+        $('#payment_status').on('change', function () {
             let payment_status = $(this).val();
-            if(payment_status == 2 ){
+            if (payment_status == 2) {
                 $('#payment_area').show();
-            }else{
+            } else {
                 $('#payment_area').hide();
                 $('#payment_amount').val(0);
+            }
+
+            if (payment_status == 3) {
+                $('#payment_acc').hise();
+            } else {
+                $('#payment_acc').show();
             }
             totalCalc();
         })

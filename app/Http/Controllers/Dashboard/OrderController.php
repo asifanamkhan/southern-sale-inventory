@@ -51,7 +51,7 @@ class OrderController extends Controller
                                   </button>
                                   <ul class="dropdown-menu" role="menu">
                                     <li>
-                                        <a href="' . route('purchase.show', $data->id) . '">
+                                        <a href="' . route('order.show', $data->id) . '">
                                             <i class="fa fa-info-circle"></i>  Details
                                         </a>
                                     </li>
@@ -179,7 +179,7 @@ class OrderController extends Controller
 
             }
 
-            if ($request->payment_status) {
+            if ($request->payment_status != 3) {
                 if ($request->payment_status == 1) {
                     $amount = $request->grand_total;
                 }
@@ -191,9 +191,10 @@ class OrderController extends Controller
                     'type' => 2,
                     'status' => 1,
                     'relation_id' => $id,
-                    'tran_type' => 1,
+                    'account_id' => $request->account_id,
                     'narration' => 'Order Payment',
-                    'amount' => $amount,
+                    'debit_amount' => $amount,
+                    'difference' => $amount,
                     'created_by' => Auth::id(),
                     'created_at' => Carbon::now(),
                 ]);
@@ -213,9 +214,33 @@ class OrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Order $order)
+    public function show($id)
     {
-        //
+        try {
+            $order = DB::table('orders as d')
+                ->where('d.id', $id)
+                ->leftJoin('people as p', function ($join) {
+                    $join->on('p.id', '=', 'd.customer_id');
+                })
+                ->first(['d.*', 'p.name as customer_name']);
+
+            $orderDetails = DB::table('order_details as d')
+                ->where('d.order_id', $id)
+                ->distinct('d.product_id')
+                ->leftJoin('products as p', function ($join) {
+                    $join->on('p.id', '=', 'd.product_id');
+                })
+                ->get(['product_id', 'p.name as product_name']);
+
+//            dd($orderDetails);
+
+            return view('dashboard.pages.order.show',
+                compact('order', 'orderDetails'));
+
+        } catch (\Exception $exception) {
+            DB::rollback();
+            return redirect()->back()->with('error', $exception->getMessage());
+        }
     }
 
     /**
@@ -257,7 +282,7 @@ class OrderController extends Controller
         $paid_amount = DB::table('transactions')
             ->where('type', 2)
             ->where('relation_id', $request->id)
-            ->sum('amount');
+            ->sum('debit_amount');
 
         $due_amount = $order->grand_total - $paid_amount;
 

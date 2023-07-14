@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('branch')->nullable();
             $table->string('account_no')->nullable();
             $table->string('name')->nullable();
-            $table->double('opening_balance')->nullable();
+            $table->double('opening_balance')->default(0);
             $table->integer('status')->default(1);
             $table->text('description')->nullable();
             $table->integer('created_by')->nullable();

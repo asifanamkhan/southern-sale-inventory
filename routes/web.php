@@ -58,7 +58,7 @@ Route::group(['middleware' => 'auth'], function(){
     Route::resource('warehouse', WarehouseController::class)->except(['delete']);
     Route::resource('expense', ExpenseController::class);
     Route::resource('expense-categories', ExpenseCategoryController::class);
-    Route::resource('accounts', AccountController::class);
+    Route::resource('accounts', AccountController::class)->except(['destroy']);
     Route::resource('transactions', TransactionController::class);
 
     Route::group(['prefix' => 'products-categories','as'=>'products-categories.'], function(){
@@ -121,6 +121,11 @@ Route::group(['middleware' => 'auth'], function(){
         Route::post('update', [UnitController::class,'update'])->name('update');
         Route::get('delete/{id}', [UnitController::class,'destroy'])->name('delete');
     });
+
+    Route::group(['prefix' => 'accounts','as'=>'accounts.'], function(){
+        Route::get('delete/{id}', [AccountController::class,'destroy'])->name('delete');
+    });
+
 });
 
 
