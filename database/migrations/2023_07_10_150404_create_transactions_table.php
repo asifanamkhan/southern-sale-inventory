@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('relation_id');
             $table->integer('tran_type')->comment('1-debit,2-credit');
             $table->double('amount');
+
             $table->integer('status')->default(1);
             $table->text('narration')->nullable();
             $table->integer('created_by')->nullable();
