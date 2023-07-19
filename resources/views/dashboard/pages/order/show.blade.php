@@ -58,9 +58,9 @@
                                style="color: white;background-image: radial-gradient( circle farthest-corner at 22.4% 21.7%, rgba(4,189,228,1) 0%, rgba(2,83,185,1) 100.2% );">
                         <tr class="" style="text-align:center; ">
                             <th style="width: 5%">SL</th>
-                            <th style="width: 20%">Product</th>
-                            <th style="width: 40%; text-align: center">Details</th>
-                            <th style="width: 10%; text-align: right">Rate</th>
+                            <th style="width: 25%">Product</th>
+                            <th style="width: 45%; text-align: center">Details</th>
+                            <th style="width: 12%; text-align: right">Rate</th>
                             <th style="width: 15%; text-align: right">Total</th>
                         </tr>
                         </thead>
@@ -75,13 +75,13 @@
                                 <td>{{$loop->iteration}}</td>
                                 <td>{{$orderDetail->product_name}}</td>
                                 <td>
-                                    <table class="table">
+                                    <table class="table" style="margin-bottom: 0 !important;">
                                         <thead>
                                         <tr>
-                                            <th>Length</th>
-                                            <th>Width</th>
-                                            <th>Qty</th>
-                                            <th>Sft</th>
+                                            <th style="width: 20%; text-align: center">Length</th>
+                                            <th style="width: 20%; text-align: center">Width</th>
+                                            <th style="width: 25%; text-align: center">Qty</th>
+                                            <th style="width: 35%; text-align: right">Sft</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -99,34 +99,34 @@
                                                 $rate = $detail->rate;
                                             @endphp
                                             <tr>
-                                                <td>{{$detail->length}}</td>
-                                                <td>
+                                                <td style="text-align: center">{{$detail->length}}</td>
+                                                <td style="text-align: center">
                                                     {{$detail->width}}
                                                 </td>
-                                                <th>
+                                                <td style="text-align: center">
                                                     @php $total_qty += $detail->quantity @endphp
                                                     {{$detail->quantity}}
-                                                </th>
-                                                <th>
+                                                </td>
+                                                <td style="text-align: right">
                                                     @php $total_sqf += $detail->sqf @endphp
                                                     {{$detail->sqf}}
-                                                </th>
+                                                </td>
                                             </tr>
                                         @endforeach
                                         </tbody>
                                         <tfoot>
                                         <tr>
-                                            <th colspan="2">Total</th>
-                                            <th>{{$total_qty}}</th>
-                                            <th>{{$total_sqf}}</th>
+                                            <th style="text-align: center" colspan="2">Total</th>
+                                            <th style="text-align: center">{{$total_qty}}</th>
+                                            <th style="text-align: right">{{$total_sqf}}</th>
                                         </tr>
                                         </tfoot>
                                     </table>
                                 </td>
-                                <th style="vertical-align: bottom; text-align: right">
+                                <th style="vertical-align: bottom; text-align: right; padding-bottom: 16px">
                                     {{$rate}}
                                 </th>
-                                <th style="vertical-align: bottom; text-align: right">
+                                <th style="vertical-align: bottom; text-align: right; padding-bottom: 16px">
                                     @php
                                         $line_total = $rate * $total_qty * $total_sqf ;
 //                                        $product_total += $line_total
@@ -135,30 +135,30 @@
                                 </th>
                             </tr>
                         @endforeach
-{{--                        <tfoot>--}}
-{{--                        <tr>--}}
-{{--                            <th colspan="2" style="text-align: center">Total</th>--}}
-{{--                            <th style="text-align: center">{{$total_qty}}</th>--}}
-{{--                            <th></th>--}}
-{{--                            <th style="text-align: right">{{number_format(($total_amount), 2, '.', ',')}}</th>--}}
-{{--                        </tr>--}}
-{{--                        <tr>--}}
-{{--                            <th colspan="2" style="text-align: center">Discount</th>--}}
-{{--                            <th style="text-align: center" colspan="2"></th>--}}
-{{--                            <th style="text-align: right">{{number_format(($order->discount), 2, '.', ',')}}</th>--}}
-{{--                        </tr>--}}
-{{--                        <tr>--}}
-{{--                            <th colspan="2" style="text-align: center">Shipping charge</th>--}}
-{{--                            <th style="text-align: center" colspan="2"></th>--}}
-{{--                            <th style="text-align: right">{{number_format(($order->shipping_charge), 2, '.', ',')}}</th>--}}
-{{--                        </tr>--}}
-{{--                        <tr style="color: darkred">--}}
-{{--                            <th colspan="2" style="text-align: center;">Grand Total</th>--}}
-{{--                            <th style="text-align: center" colspan="2"></th>--}}
-{{--                            @php $grant_total =  ($total_amount + $order->shipping_charge) - $order->discount @endphp--}}
-{{--                            <th style="text-align: right">{{number_format(($grant_total), 2, '.', ',')}}</th>--}}
-{{--                        </tr>--}}
-{{--                        </tfoot>--}}
+                        {{--                        <tfoot>--}}
+                        {{--                        <tr>--}}
+                        {{--                            <th colspan="2" style="text-align: center">Total</th>--}}
+                        {{--                            <th style="text-align: center">{{$total_qty}}</th>--}}
+                        {{--                            <th></th>--}}
+                        {{--                            <th style="text-align: right">{{number_format(($total_amount), 2, '.', ',')}}</th>--}}
+                        {{--                        </tr>--}}
+                        {{--                        <tr>--}}
+                        {{--                            <th colspan="2" style="text-align: center">Discount</th>--}}
+                        {{--                            <th style="text-align: center" colspan="2"></th>--}}
+                        {{--                            <th style="text-align: right">{{number_format(($order->discount), 2, '.', ',')}}</th>--}}
+                        {{--                        </tr>--}}
+                        {{--                        <tr>--}}
+                        {{--                            <th colspan="2" style="text-align: center">Shipping charge</th>--}}
+                        {{--                            <th style="text-align: center" colspan="2"></th>--}}
+                        {{--                            <th style="text-align: right">{{number_format(($order->shipping_charge), 2, '.', ',')}}</th>--}}
+                        {{--                        </tr>--}}
+                        {{--                        <tr style="color: darkred">--}}
+                        {{--                            <th colspan="2" style="text-align: center;">Grand Total</th>--}}
+                        {{--                            <th style="text-align: center" colspan="2"></th>--}}
+                        {{--                            @php $grant_total =  ($total_amount + $order->shipping_charge) - $order->discount @endphp--}}
+                        {{--                            <th style="text-align: right">{{number_format(($grant_total), 2, '.', ',')}}</th>--}}
+                        {{--                        </tr>--}}
+                        {{--                        </tfoot>--}}
                         </tbody>
                     </table>
                 </div>

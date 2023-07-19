@@ -4,10 +4,12 @@
     <title>Inventory</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="csrf-token" content="{{ csrf_token() }}" />
+    <meta name="csrf-token" content="{{ csrf_token() }}"/>
 
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+{{--    @include('dashboard.layouts.vite')--}}
     @include('dashboard.layouts.header')
     @include('dashboard.layouts.css')
     @yield('css')
@@ -61,7 +63,7 @@
     <!-- /.control-sidebar -->
     <!-- Add the sidebar's background. This div must be placed
          immediately after the control sidebar -->
-{{--    <div class="control-sidebar-bg"></div>--}}
+    {{--    <div class="control-sidebar-bg"></div>--}}
 </div>
 </div>
 <!-- ./wrapper -->

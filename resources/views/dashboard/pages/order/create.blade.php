@@ -310,7 +310,18 @@
                                     </td>
                                 </tr>
                             </tbody>
+
+                            <tbody id="less-area-${x}">
+
+                            </tbody>
+
                             <tfoot>
+                                <tr >
+                                    <td colspan="4" style="text-align: right">
+                                        <a style="cursor: pointer" onclick="lessAdd(${x})" id="less-btn-${x}">Add Less</a>
+                                    </td>
+                                </tr>
+
                                 <tr>
                                     <th colspan="2">Total</th>
                                     <th>
@@ -372,6 +383,32 @@
                         </a>
                     </td>
                 </tr>
+            `)
+        }
+
+        function lessAdd(id){
+            $('#less-area-'+x).append(`
+                <tr>
+                    <td>
+                        <input onkeyup="detCal(${x},${y})"
+                            name="product_${x}_length[]" id="tr-det-length-${id}-${y}" type="number" class="form-control">
+                    </td>
+                    <td>
+                        <input name="product_${x}_width[]" onkeyup="detCal(${x},${y})" type="number" id="tr-det-width-${id}-${y}" class="form-control">
+                    </td>
+                    <td>
+                        <input name="product_${x}_qty[]" onkeyup="detCal(${x},${y})" type="number" id="tr-det-qty-${id}-${y}" class="form-control tr-det-qty-${id}">
+                    </td>
+                    <td>
+                        <input name="product_${x}_sqf[]" type="number" id="tr-det-sqf-${id}-${y}" readonly class="form-control tr-det-sqf-${id}">
+                    </td>
+                    <td>
+                        <a style="color: red; font-size: 15px" onclick="removeDet(${id},${y})" class="btn btn">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </td>
+                </tr>
+
             `)
         }
 
