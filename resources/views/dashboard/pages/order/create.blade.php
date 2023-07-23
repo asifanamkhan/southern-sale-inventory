@@ -282,10 +282,10 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th style="width: 23%">Length</th>
-                                    <th style="width: 23%">Width</th>
-                                    <th style="width: 24%">Qty</th>
-                                    <th style="width: 27%">Sft</th>
+                                    <th style="width: 22%">Length</th>
+                                    <th style="width: 22%">Width</th>
+                                    <th style="width: 23%">Qty</th>
+                                    <th style="width: 30%">Sft</th>
                                     <th style="width: 3%">AC</th>
                                 </tr>
                             </thead>
@@ -310,18 +310,7 @@
                                     </td>
                                 </tr>
                             </tbody>
-
-                            <tbody id="less-area-${x}">
-
-                            </tbody>
-
-                            <tfoot>
-                                <tr >
-                                    <td colspan="4" style="text-align: right">
-                                        <a style="cursor: pointer" onclick="lessAdd(${x})" id="less-btn-${x}">Add Less</a>
-                                    </td>
-                                </tr>
-
+                            <tbody>
                                 <tr>
                                     <th colspan="2">Total</th>
                                     <th>
@@ -332,10 +321,32 @@
                                     </th>
 
                                 </tr>
-                                <tr>
-                                    <th colspan="2">Amount</th>
 
-                                    <th colspan="2">
+                                <tr >
+                                    <td colspan="4" style="text-align: right; border: none; padding-top: 0">
+                                        <a style="cursor: pointer" onclick="lessAdd(${x})" id="less-btn-${x}">Add Less</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody id="less-area-${x}">
+
+
+                            </tbody>
+                            <tbody id="less-total-area-${x}">
+
+                            </tbody>
+
+                            <tfoot>
+
+                                <tr>
+                                    <th colspan="2">Final </th>
+
+                                    <th colspan="">
+                                        <input type="number" style="text-align: right" id="tr-det-tot-qty-${x}" class="form-control" readonly>
+                                    </th>
+
+
+                                    <th colspan="">
                                         <input type="number" style="text-align: right" id="tr-det-tot-amount-${x}" class="form-control amount_det" readonly>
                                     </th>
 
@@ -386,30 +397,52 @@
             `)
         }
 
+        var l = 0;
         function lessAdd(id){
+            l++
             $('#less-area-'+x).append(`
-                <tr>
+                <tr id="tr-det-less-${x}-${l}" class="tr-det-less-${x}">
                     <td>
-                        <input onkeyup="detCal(${x},${y})"
-                            name="product_${x}_length[]" id="tr-det-length-${id}-${y}" type="number" class="form-control">
+                        <input onkeyup="lessCal(${x},${l})"
+                            name="product_less_${x}_length[]" id="tr-det-less-length-${id}-${l}" type="number" class="form-control">
                     </td>
                     <td>
-                        <input name="product_${x}_width[]" onkeyup="detCal(${x},${y})" type="number" id="tr-det-width-${id}-${y}" class="form-control">
+                        <input name="product_less_${x}_width[]" onkeyup="lessCal(${x},${l})" type="number" id="tr-det-less-width-${id}-${l}" class="form-control">
                     </td>
                     <td>
-                        <input name="product_${x}_qty[]" onkeyup="detCal(${x},${y})" type="number" id="tr-det-qty-${id}-${y}" class="form-control tr-det-qty-${id}">
+                        <input name="product_less_${x}_qty[]" onkeyup="lessCal(${x},${l})" type="number" id="tr-det-less-qty-${id}-${l}" class="form-control tr-det-less-qty-${id}">
                     </td>
                     <td>
-                        <input name="product_${x}_sqf[]" type="number" id="tr-det-sqf-${id}-${y}" readonly class="form-control tr-det-sqf-${id}">
+                        <input name="product_less_${x}_sqf[]" type="number" id="tr-det-less-sqf-${x}-${l}" readonly class="form-control tr-det-less-sqf-${id}">
                     </td>
                     <td>
-                        <a style="color: red; font-size: 15px" onclick="removeDet(${id},${y})" class="btn btn">
+                        <a style="color: red; font-size: 15px" onclick="removeLess(${x},${l})" class="btn btn">
                             <i class="fa fa-times"></i>
                         </a>
                     </td>
                 </tr>
 
             `)
+
+           let less_tr_length = $('.less-total-area-tr-'+x).length
+
+            console.log(less_tr_length);
+
+            if(less_tr_length < 1){
+                $('#less-total-area-'+x).append(`
+                <tr class="less-total-area-tr-${x}">
+                    <th colspan="2">Less</th>
+                    <th>
+                        <input type="number" name="product_less_quantity[]" id="tr-det-less-tot-qty-${x}" class="form-control qty_det_less" readonly>
+                    </th>
+                    <th>
+                        <input type="number"  id="tr-det-less-tot-sqf-${x}" class="form-control" readonly>
+                    </th>
+
+                </tr>
+            `)
+            }
+
         }
 
         function removeDet(id, y) {
@@ -447,6 +480,45 @@
 
         }
 
+        function lessCal(x,y){
+            let length = $('#tr-det-less-length-' + x + '-' + y).val();
+            let width = $('#tr-det-less-width-' + x + '-' + y).val();
+            let qty = $('#tr-det-less-qty-' + x + '-' + y).val();
+
+            let unit_id = $('#unit_id').val();
+
+            if (isNaN(length) || length == "") {
+                length = 0;
+            }
+            if (isNaN(width) || width == "") {
+                width = 0;
+            }
+
+            if (isNaN(qty) || qty == "") {
+                qty = 0;
+            }
+
+            if (unit_id == 2) {
+                length = parseFloat(length) / 25.40;
+                width = parseFloat(width) / 25.40;
+            }
+
+            let sqf = ((parseFloat(length) * parseFloat(width) * parseFloat(qty)) / 144).toFixed(2)
+
+            $('#tr-det-less-sqf-' + x + '-' + y).val(sqf);
+            calcLess(x);
+        }
+
+        function removeLess(x,y){
+            $('#tr-det-less-' + x + '-' + y).remove();
+            let less_tr_length= $('.tr-det-less-'+x).length;
+            console.log(less_tr_length)
+            if(less_tr_length == 0){
+                $('.less-total-area-tr-'+x).remove();
+            }
+            lessCal(x, y);
+        }
+
         function remove(x) {
             let product_id = $('#product-id-' + x).val();
             $('#tr-' + x).remove();
@@ -458,8 +530,8 @@
         }
 
         function calc(x) {
-            var total_sqf = 0;
-            var total_qty = 0;
+            let total_sqf = 0;
+            let total_qty = 0;
 
             let price = $('#price-'+ x).val();
 
@@ -478,6 +550,33 @@
             $('#tr-det-tot-sqf-' + x).val(total_sqf.toFixed(2));
             $('#tr-det-tot-qty-' + x).val(total_qty);
             $('#tr-det-tot-amount-' + x).val((parseFloat(price) *  total_sqf) .toFixed(2));
+
+            totalCalc();
+        }
+
+        function calcLess(x){
+            let total_sqf = 0;
+            let total_qty = 0;
+
+            let price = $('#price-'+ x).val();
+
+            if (isNaN(price) || price == "") {
+                price = 0;
+            }
+
+            $('.tr-det-less-sqf-' + x).each(function () {
+                total_sqf += parseFloat(this.value);
+            });
+
+            $('.tr-det-less-qty-' + x).each(function () {
+                total_qty += parseFloat(this.value);
+            });
+
+            $('#tr-det-less-tot-sqf-' + x).val(total_sqf.toFixed(2));
+            $('#tr-det-less-tot-qty-' + x).val(total_qty);
+            $('#tr-det-less-tot-amount-' + x).val((parseFloat(price) *  total_sqf) .toFixed(2));
+
+
 
             totalCalc();
         }

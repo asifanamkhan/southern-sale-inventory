@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('order_id');
             $table->integer('product_id');
+            $table->integer('type')->comment('1-add,2-less');
             $table->string('thickness')->nullable();
             $table->double('length');
             $table->double('width');
